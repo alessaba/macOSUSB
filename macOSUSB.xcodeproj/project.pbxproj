@@ -14,6 +14,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0B5127A021E3DC97009E4B3B /* macos2usb.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = macos2usb.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0B9CAD8821E226C700AAED83 /* macOSUSB.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = macOSUSB.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0B9CAD8B21E226C700AAED83 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		0B9CAD8D21E226C700AAED83 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -39,6 +40,7 @@
 			children = (
 				0B9CAD8A21E226C700AAED83 /* macOSUSB */,
 				0B9CAD8921E226C700AAED83 /* Products */,
+				0B5127A021E3DC97009E4B3B /* macos2usb.playground */,
 			);
 			sourceTree = "<group>";
 		};
