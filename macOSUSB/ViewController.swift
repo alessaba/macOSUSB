@@ -16,6 +16,7 @@ class ViewController: NSViewController, NSComboBoxDelegate {
     @IBOutlet weak var iconView: NSImageView!
     
     var macOS_installers : [String] = []
+    var refined_installers : [String] = []
     var volumes : [String] = []
     
     var icon : String = ""
@@ -32,13 +33,15 @@ class ViewController: NSViewController, NSComboBoxDelegate {
         if applications != nil{
             macOS_installers = applications!.filter{ $0.prefix(4) == "Inst"}
         }
-        installerBox.addItems(withObjectValues:
-            macOS_installers
-                .map{
-                    let releaseName = $0.split(separator: " ")[2].split(separator: ".")[0]
-                    let version = String(describing: NSDictionary.init(contentsOfFile: "/Applications/\($0)/Contents/version.plist")!["CFBundleShortVersionString"]!)
-                    return "\(releaseName) (\(version))"
-        })
+        
+        refined_installers = macOS_installers.map{
+            
+            let releaseName = $0.split(separator: " ")[2].split(separator: ".")[0]
+            let version = String(describing: NSDictionary.init(contentsOfFile: "/Applications/\($0)/Contents/version.plist")!["CFBundleShortVersionString"]!)
+            return "\(releaseName) (\(version))"
+        }
+        
+        installerBox.addItems(withObjectValues: refined_installers)
         
         volumes = try! fileManager.contentsOfDirectory(atPath: "/Volumes")
         driveBox.addItems(withObjectValues: volumes)
@@ -72,9 +75,9 @@ class ViewController: NSViewController, NSComboBoxDelegate {
         
         alert.beginSheetModal(for: self.view.window!){ (modalResponse) -> Void in
             if modalResponse == .alertFirstButtonReturn {
-                
-                let installer = self.macOS_installers[self.installerBox.indexOfSelectedItem]//.replacingOccurrences(of: " ", with: "\\ ")
-                let drive = self.volumes[self.driveBox.indexOfSelectedItem]//.replacingOccurrences(of: " ", with: "\\ ")
+                // *.(selected_item.split(" ")[0]).app/blablabla
+                let installer = "*\(self.refined_installers[self.installerBox.indexOfSelectedItem].split(separator: " ")[0]).app"
+                let drive = self.volumes[self.driveBox.indexOfSelectedItem] //Check if drive has spaces :-/
                 
                 
                 let cmd = "/Applications/\(installer)/Contents/Resources/createinstallmedia --volume /Volumes/\(drive) --nointeraction"
