@@ -87,7 +87,7 @@
                             <comboBox verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="eE7-79-upI">
                                 <rect key="frame" x="129" y="151" width="197" height="26"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <comboBoxCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" completes="NO" numberOfVisibleItems="5" id="6Ga-JF-Qhw">
+                                <comboBoxCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" borderStyle="bezel" placeholderString="No macOS Installers found" drawsBackground="YES" completes="NO" numberOfVisibleItems="5" id="6Ga-JF-Qhw">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -96,7 +96,7 @@
                             <comboBox verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ikc-Up-cUd">
                                 <rect key="frame" x="129" y="93" width="197" height="26"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <comboBoxCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" placeholderString="Select a drive " drawsBackground="YES" completes="NO" numberOfVisibleItems="5" id="I4r-ex-arx">
+                                <comboBoxCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" borderStyle="bezel" placeholderString="Select a drive " drawsBackground="YES" completes="NO" numberOfVisibleItems="5" id="I4r-ex-arx">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -141,10 +141,10 @@
                         </subviews>
                     </view>
                     <connections>
-                        <outlet property="driveBox" destination="ikc-Up-cUd" id="ynA-se-xRq"/>
                         <outlet property="iconView" destination="Evz-kQ-VmD" id="7sK-Fm-IIw"/>
                         <outlet property="installerBox" destination="eE7-79-upI" id="IEQ-7q-mA6"/>
                         <outlet property="spinningIndicator" destination="8Vf-45-o38" id="KZa-yM-e37"/>
+                        <outlet property="volumesBox" destination="ikc-Up-cUd" id="ynA-se-xRq"/>
                     </connections>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>

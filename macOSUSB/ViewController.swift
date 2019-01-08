@@ -12,43 +12,39 @@ import Foundation
 class ViewController: NSViewController, NSComboBoxDelegate {
 
     @IBOutlet weak var installerBox: NSComboBox!
-    @IBOutlet weak var driveBox: NSComboBox!
+    @IBOutlet weak var volumesBox: NSComboBox!
     @IBOutlet weak var iconView: NSImageView!
     @IBOutlet weak var spinningIndicator: NSProgressIndicator!
     
     var macOS_installers : [String] = []
-    var refined_installers : [String] = []
+    var installer_names : [String] = []
     var volumes : [String] = []
-    
     var icon : String = ""
     
     override func viewDidLoad() {
         super.viewDidLoad()
         installerBox.delegate = self
         
-        installerBox.isEditable = false
-        driveBox.isEditable = false
-        
         let fileManager = FileManager.default
+        
         let applications = try? fileManager.contentsOfDirectory(atPath: "/Applications")
         if applications != nil{
             macOS_installers = applications!.filter{ $0.prefix(4) == "Inst"}
         }
         
-        refined_installers = macOS_installers.map{
-            
+        installer_names = macOS_installers.map{
             let releaseName = $0.split(separator: " ")[2].split(separator: ".")[0]
             let version = String(describing: NSDictionary.init(contentsOfFile: "/Applications/\($0)/Contents/version.plist")!["CFBundleShortVersionString"]!)
             return "\(releaseName) (\(version))"
         }
         
-        installerBox.addItems(withObjectValues: refined_installers)
+        installerBox.addItems(withObjectValues: installer_names)
         
         volumes = try! fileManager.contentsOfDirectory(atPath: "/Volumes")
-        driveBox.addItems(withObjectValues: volumes)
+        volumesBox.addItems(withObjectValues: volumes)
         
         installerBox.selectItem(at: 0)
-        driveBox.selectItem(at: volumes.count - 1 )
+        volumesBox.selectItem(at: volumes.count - 1 )
     }
     
     func comboBoxSelectionDidChange(_ notification: Notification){
@@ -68,30 +64,30 @@ class ViewController: NSViewController, NSComboBoxDelegate {
         alert.buttons[0].keyEquivalent = ""
         alert.buttons[1].keyEquivalent = "\r" // Makes Cancel the default button
         
-        
-        alert.messageText = "Are you sure? This will erase the selected drive to place the macOS installer"
+        alert.messageText = "Are you sure? This will erase the selected drive to place the macOS installer. The process will take from 5 to 10 minutes. Go take some coffee in the meantime :-)"
         alert.alertStyle = .warning
         alert.icon = NSImage(contentsOfFile: icon)
         
         
         alert.beginSheetModal(for: self.view.window!){ (modalResponse) -> Void in
             if modalResponse == .alertFirstButtonReturn {
-                // *.(selected_item.split(" ")[0]).app/blablabla
-                let installer = "*\(self.refined_installers[self.installerBox.indexOfSelectedItem].split(separator: " ")[0]).app"
-                let drive = self.volumes[self.driveBox.indexOfSelectedItem] //Check if drive has spaces :-/
+                // *[macOSReleaseName].app/path_to_executable
+                let installer = "*\(self.installer_names[self.installerBox.indexOfSelectedItem].split(separator: " ")[0]).app"
+                let drive = self.volumes[self.volumesBox.indexOfSelectedItem] //Have to check if drive has spaces and if so, work around it :-/
                 let cmd = "/Applications/\(installer)/Contents/Resources/createinstallmedia --volume /Volumes/\(drive) --nointeraction"
                 
-                let bg = DispatchQueue(label: "Process")
+                let background = DispatchQueue(label: "Process")
+                // I call this constant "background" just for readability. The actual QoS is 'default', but it doensn't matter in this case
                 
                 sender.title = ""
                 sender.isEnabled = false
                 self.installerBox.isEnabled = false
-                self.driveBox.isEnabled = false
+                self.volumesBox.isEnabled = false
                 self.spinningIndicator.isHidden = false
                 self.spinningIndicator.startAnimation(nil)
             
                 
-                bg.async{
+                background.async{
                     let process = Process()
                     process.launchPath = "/usr/bin/osascript"
                     process.arguments = ["-e","do shell script \"\(cmd)\" with administrator privileges"]
@@ -101,7 +97,7 @@ class ViewController: NSViewController, NSComboBoxDelegate {
                     process.launch()
                     process.waitUntilExit()
     
-                    let data = pipe.fileHandleForReading.readDataToEndOfFile()
+                    let data = pipe.fileHandleForReading.readDataToEndOfFile() //Result of the terminal command in raw data form
                     let response = String(data: data, encoding: .utf8)
                     
                     NSLog(response ?? "No Output :-/")
@@ -110,7 +106,7 @@ class ViewController: NSViewController, NSComboBoxDelegate {
                         sender.title = "Prepare USB"
                         sender.isEnabled = true
                         self.installerBox.isEnabled = true
-                        self.driveBox.isEnabled = true
+                        self.volumesBox.isEnabled = true
                         self.spinningIndicator.isHidden = true
                         self.spinningIndicator.stopAnimation(nil)
                         
