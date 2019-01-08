@@ -113,7 +113,7 @@ class ViewController: NSViewController, NSComboBoxDelegate {
                                 alert2.messageText = "Done :-)"
                                 alert2.alertStyle = .informational
                                 alert2.icon = NSImage(contentsOfFile: self.icon)
-                                alert2.runModal()
+                                alert2.beginSheetModal(for: self.view.window!, completionHandler: nil)
                 
                 }
             }
