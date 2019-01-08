@@ -79,8 +79,9 @@ class ViewController: NSViewController, NSComboBoxDelegate {
                 let installer = "*\(self.refined_installers[self.installerBox.indexOfSelectedItem].split(separator: " ")[0]).app"
                 let drive = self.volumes[self.driveBox.indexOfSelectedItem] //Check if drive has spaces :-/
                 
-                
                 let cmd = "/Applications/\(installer)/Contents/Resources/createinstallmedia --volume /Volumes/\(drive) --nointeraction"
+                
+                let bg = DispatchQueue(label: "background", qos: .background, attributes: .initiallyInactive)
                 
                 let process = Process()
                 process.launchPath = "/usr/bin/osascript"
@@ -88,31 +89,33 @@ class ViewController: NSViewController, NSComboBoxDelegate {
                 
                 let pipe = Pipe()
                 process.standardOutput = pipe
-                process.launch()
                 
-                sender.title = "Wait..."
-                sender.isEnabled = false
-                self.installerBox.isEnabled = false
-                self.driveBox.isEnabled = false
+                bg.async{
+                                process.waitUntilExit()
+                                process.launch()
+                                
+                                sender.title = "Wait..."
+                                sender.isEnabled = false
+                                self.installerBox.isEnabled = false
+                                self.driveBox.isEnabled = false
                 
-                process.waitUntilExit()
+                                let data = pipe.fileHandleForReading.readDataToEndOfFile()
+                                let response = String(data: data, encoding: .utf8)
+                                
+                                NSLog(response ?? "No Output :-/")
+                                
+                                sender.title = "Prepare USB"
+                                sender.isEnabled = true
+                                self.installerBox.isEnabled = true
+                                self.driveBox.isEnabled = true
+                                
+                                let alert2 = NSAlert()
+                                alert2.messageText = "Done :-)"
+                                alert2.alertStyle = .informational
+                                alert2.icon = NSImage(contentsOfFile: self.icon)
+                                alert2.runModal()
                 
-                let data = pipe.fileHandleForReading.readDataToEndOfFile()
-                let response = String(data: data, encoding: .utf8)
-                
-                NSLog(response ?? "No Output :-/")
-                
-                sender.title = "Prepare USB"
-                sender.isEnabled = true
-                self.installerBox.isEnabled = true
-                self.driveBox.isEnabled = true
-                
-                let alert2 = NSAlert()
-                alert2.messageText = "Done :-)"
-                alert2.alertStyle = .informational
-                alert2.icon = NSImage(contentsOfFile: self.icon)
-                alert2.runModal()
-                
+                }
             }
         }
     }
