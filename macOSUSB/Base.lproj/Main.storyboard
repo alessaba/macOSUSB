@@ -134,12 +134,17 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="6u3-gm-TcQ"/>
                             </imageView>
+                            <progressIndicator hidden="YES" wantsLayer="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" maxValue="100" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="8Vf-45-o38">
+                                <rect key="frame" x="201" y="15" width="16" height="16"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            </progressIndicator>
                         </subviews>
                     </view>
                     <connections>
                         <outlet property="driveBox" destination="ikc-Up-cUd" id="ynA-se-xRq"/>
                         <outlet property="iconView" destination="Evz-kQ-VmD" id="7sK-Fm-IIw"/>
                         <outlet property="installerBox" destination="eE7-79-upI" id="IEQ-7q-mA6"/>
+                        <outlet property="spinningIndicator" destination="8Vf-45-o38" id="KZa-yM-e37"/>
                     </connections>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>

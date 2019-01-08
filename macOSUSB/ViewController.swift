@@ -14,6 +14,7 @@ class ViewController: NSViewController, NSComboBoxDelegate {
     @IBOutlet weak var installerBox: NSComboBox!
     @IBOutlet weak var driveBox: NSComboBox!
     @IBOutlet weak var iconView: NSImageView!
+    @IBOutlet weak var spinningIndicator: NSProgressIndicator!
     
     var macOS_installers : [String] = []
     var refined_installers : [String] = []
@@ -78,43 +79,48 @@ class ViewController: NSViewController, NSComboBoxDelegate {
                 // *.(selected_item.split(" ")[0]).app/blablabla
                 let installer = "*\(self.refined_installers[self.installerBox.indexOfSelectedItem].split(separator: " ")[0]).app"
                 let drive = self.volumes[self.driveBox.indexOfSelectedItem] //Check if drive has spaces :-/
-                
                 let cmd = "/Applications/\(installer)/Contents/Resources/createinstallmedia --volume /Volumes/\(drive) --nointeraction"
                 
-                let bg = DispatchQueue(label: "background", qos: .background, attributes: .initiallyInactive)
+                let bg = DispatchQueue(label: "Process")
                 
-                let process = Process()
-                process.launchPath = "/usr/bin/osascript"
-                process.arguments = ["-e","do shell script \"\(cmd)\" with administrator privileges"]
-                
-                let pipe = Pipe()
-                process.standardOutput = pipe
+                sender.title = ""
+                sender.isEnabled = false
+                self.installerBox.isEnabled = false
+                self.driveBox.isEnabled = false
+                self.spinningIndicator.isHidden = false
+                self.spinningIndicator.startAnimation(nil)
+            
                 
                 bg.async{
-                                process.waitUntilExit()
-                                process.launch()
-                                
-                                sender.title = "Wait..."
-                                sender.isEnabled = false
-                                self.installerBox.isEnabled = false
-                                self.driveBox.isEnabled = false
-                
-                                let data = pipe.fileHandleForReading.readDataToEndOfFile()
-                                let response = String(data: data, encoding: .utf8)
-                                
-                                NSLog(response ?? "No Output :-/")
-                                
-                                sender.title = "Prepare USB"
-                                sender.isEnabled = true
-                                self.installerBox.isEnabled = true
-                                self.driveBox.isEnabled = true
-                                
-                                let alert2 = NSAlert()
-                                alert2.messageText = "Done :-)"
-                                alert2.alertStyle = .informational
-                                alert2.icon = NSImage(contentsOfFile: self.icon)
-                                alert2.beginSheetModal(for: self.view.window!, completionHandler: nil)
-                
+                    let process = Process()
+                    process.launchPath = "/usr/bin/osascript"
+                    process.arguments = ["-e","do shell script \"\(cmd)\" with administrator privileges"]
+                    
+                    let pipe = Pipe()
+                    process.standardOutput = pipe
+                    process.launch()
+                    process.waitUntilExit()
+    
+                    let data = pipe.fileHandleForReading.readDataToEndOfFile()
+                    let response = String(data: data, encoding: .utf8)
+                    
+                    NSLog(response ?? "No Output :-/")
+                    
+                    DispatchQueue.main.async {
+                        sender.title = "Prepare USB"
+                        sender.isEnabled = true
+                        self.installerBox.isEnabled = true
+                        self.driveBox.isEnabled = true
+                        self.spinningIndicator.isHidden = true
+                        self.spinningIndicator.stopAnimation(nil)
+                        
+                        let alert2 = NSAlert()
+                        alert2.messageText = "Done :-)"
+                        alert2.alertStyle = .informational
+                        alert2.icon = NSImage(contentsOfFile: self.icon)
+                        alert2.addButton(withTitle: "Great!")
+                        alert2.beginSheetModal(for: self.view.window!, completionHandler: nil)
+                    }
                 }
             }
         }
