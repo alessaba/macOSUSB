@@ -73,7 +73,7 @@ class ViewController: NSViewController, NSComboBoxDelegate {
             if modalResponse == .alertFirstButtonReturn {
                 // *[macOSReleaseName].app/path_to_executable
                 let installer = "*\(self.installer_names[self.installerBox.indexOfSelectedItem].split(separator: " ")[0]).app"
-                let drive = self.volumes[self.volumesBox.indexOfSelectedItem] //Have to check if drive has spaces and if so, work around it :-/
+                let drive = self.volumes[self.volumesBox.indexOfSelectedItem].replacingOccurrences(of: " ", with: "*")
                 let cmd = "/Applications/\(installer)/Contents/Resources/createinstallmedia --volume /Volumes/\(drive) --nointeraction"
                 
                 let background = DispatchQueue(label: "Process")
