@@ -89,7 +89,7 @@ class ViewController: NSViewController, NSComboBoxDelegate {
                 // *[macOSReleaseName].app/path_to_executable
                 let installer = "*\(self.installer_names[self.installerBox.indexOfSelectedItem].split(separator: " ")[0]).app"
                 let drive = self.volumes[self.volumesBox.indexOfSelectedItem].replacingOccurrences(of: " ", with: "*")
-                let cmd = "/Applications/\(installer)/Contents/Resources/createinstallmedia --volume /Volumes/\(drive) --nointeraction"
+                let cmd = "/Applications/\(installer)/Contents/Resources/createinstallmedia --volume /Volumes/\(drive) --applicationpath /Applications/\(installer) --nointeraction"
                 
                 /*if self.isOlderThanHSierra(installer){
                     cmd += " --applicationpath /Applications/\(installer)" // Must verify if this argument can be used in High Sierra and newer too.
@@ -118,7 +118,7 @@ class ViewController: NSViewController, NSComboBoxDelegate {
                     
                     let outHandle = pipe.fileHandleForReading
                     outHandle.waitForDataInBackgroundAndNotify()
-                    
+                    /*
                     var observer : NSObjectProtocol!
                     observer = NotificationCenter.default.addObserver(forName: .NSFileHandleDataAvailable, object: outHandle, queue: nil) {  notification -> Void in
                         let data = outHandle.availableData
@@ -132,7 +132,7 @@ class ViewController: NSViewController, NSComboBoxDelegate {
                             NotificationCenter.default.removeObserver(observer!)
                         }
                     }
-                    
+                    */
                     
                     let data = outHandle.readDataToEndOfFile() //Result of the terminal command in raw data form
                     let response = String(data: data, encoding: .utf8)
