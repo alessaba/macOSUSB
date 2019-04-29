@@ -21,6 +21,16 @@ class ViewController: NSViewController, NSComboBoxDelegate {
     var volumes : [String] = []
     var icon : String = ""
     
+    func getVersion(application: String) -> String {
+        return String(describing: NSDictionary.init(contentsOfFile: "/Applications/\(application)/Contents/version.plist")!["CFBundleShortVersionString"] ?? "0.0.0")
+    }
+    
+    func isOlderThanHSierra(_ installer: String) -> Bool{
+        let version = getVersion(application: installer)
+        let majorRelease = Int(version.split(separator: ".")[0])!
+        return (majorRelease < 13)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         installerBox.delegate = self
@@ -34,16 +44,21 @@ class ViewController: NSViewController, NSComboBoxDelegate {
         
         installer_names = macOS_installers.map{
             let releaseName = $0.split(separator: " ")[2].split(separator: ".")[0]
-            let version = String(describing: NSDictionary.init(contentsOfFile: "/Applications/\($0)/Contents/version.plist")!["CFBundleShortVersionString"]!)
+            let version = getVersion(application: $0)
             return "\(releaseName) (\(version))"
         }
-        
         installerBox.addItems(withObjectValues: installer_names)
         
         volumes = try! fileManager.contentsOfDirectory(atPath: "/Volumes")
         volumesBox.addItems(withObjectValues: volumes)
         
-        installerBox.selectItem(at: 0)
+        if installer_names != [] {
+            installerBox.selectItem(at: 0)
+        } else {
+            NSLog("No installers found.")
+            //NSApplication.shared.mainMenu?.item(at: 1)?._highlightItem()
+        }
+        
         volumesBox.selectItem(at: volumes.count - 1 )
     }
     
@@ -76,6 +91,10 @@ class ViewController: NSViewController, NSComboBoxDelegate {
                 let drive = self.volumes[self.volumesBox.indexOfSelectedItem].replacingOccurrences(of: " ", with: "*")
                 let cmd = "/Applications/\(installer)/Contents/Resources/createinstallmedia --volume /Volumes/\(drive) --nointeraction"
                 
+                /*if self.isOlderThanHSierra(installer){
+                    cmd += " --applicationpath /Applications/\(installer)" // Must verify if this argument can be used in High Sierra and newer too.
+                }*/
+                
                 let background = DispatchQueue(label: "Process")
                 // I call this constant "background" just for readability. The actual QoS is 'default', but it doensn't matter in this case
                 
@@ -96,8 +115,26 @@ class ViewController: NSViewController, NSComboBoxDelegate {
                     process.standardOutput = pipe
                     process.launch()
                     process.waitUntilExit()
-    
-                    let data = pipe.fileHandleForReading.readDataToEndOfFile() //Result of the terminal command in raw data form
+                    
+                    let outHandle = pipe.fileHandleForReading
+                    outHandle.waitForDataInBackgroundAndNotify()
+                    
+                    var observer : NSObjectProtocol!
+                    observer = NotificationCenter.default.addObserver(forName: .NSFileHandleDataAvailable, object: outHandle, queue: nil) {  notification -> Void in
+                        let data = outHandle.availableData
+                        if data.count > 0 {
+                            if let str = NSString(data: data, encoding: String.Encoding.utf8.rawValue) {
+                                NSLog("Got output: \(str)")
+                            }
+                            outHandle.waitForDataInBackgroundAndNotify()
+                        } else {
+                            NSLog("Finished.")
+                            NotificationCenter.default.removeObserver(observer!)
+                        }
+                    }
+                    
+                    
+                    let data = outHandle.readDataToEndOfFile() //Result of the terminal command in raw data form
                     let response = String(data: data, encoding: .utf8)
                     
                     NSLog(response ?? "No Output :-/")
