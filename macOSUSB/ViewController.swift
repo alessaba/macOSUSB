@@ -78,8 +78,8 @@ class ViewController: NSViewController, NSComboBoxDelegate {
         
         alert.buttons[0].keyEquivalent = ""
         alert.buttons[1].keyEquivalent = "\r" // Makes Cancel the default button
-        
-        alert.messageText = "Are you sure? This will erase the selected drive to place the macOS installer. The process will take from 5 to 10 minutes. Go take some coffee in the meantime :-)"
+		alert.messageText = "Are you sure?"
+		alert.informativeText = "This will erase the selected drive to place the macOS installer. The process will take from 5 to 10 minutes. Go take some coffee in the meantime :-)"
         alert.alertStyle = .warning
         alert.icon = NSImage(contentsOfFile: icon)
         
