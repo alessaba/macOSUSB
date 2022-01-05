@@ -23,7 +23,9 @@ class ViewController: NSViewController, NSComboBoxDelegate {
 	var icon : String = ""
 	
 	func getVersion(application: String) -> String {
-		return String(describing: NSDictionary.init(contentsOfFile: "\(installers_path)/\(application)/Contents/version.plist")!["CFBundleShortVersionString"] ?? "0.0.0")
+		let ver : String = String(describing: NSDictionary.init(contentsOfFile: "\(installers_path)/\(application)/Contents/version.plist")!["CFBundleShortVersionString"] ?? "0.0.0")
+		let major = Int(ver.split(separator: ".")[0]) ?? 0
+		return (major >= 16) ? "macOS \(major - 5).\(ver.split(separator: ".")[1...].joined(separator: "."))" : "OSX \(ver)"
 	}
 	
 	func isOlderThanHSierra(_ installer: String) -> Bool{
@@ -44,7 +46,8 @@ class ViewController: NSViewController, NSComboBoxDelegate {
 		}
 		
 		installer_names = macOS_installers.map{
-			let releaseName = $0.split(separator: " ")[2].split(separator: ".")[0]
+			// Install macOS Big Sur.app (Skip install, keep the remaining name, then remove ".app")
+			let releaseName = $0.split(separator: " ")[2...].joined(separator: " ").split(separator: ".")[0]
 			let version = getVersion(application: $0)
 			return "\(releaseName) (\(version))"
 		}
